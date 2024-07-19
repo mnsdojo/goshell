@@ -1,24 +1,7 @@
 package main
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-)
+import "github.com/mnsdojo/goshell/internal/shell"
 
 func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-
-	for {
-		fmt.Print("$ ")
-		if !scanner.Scan() {
-			break
-		}
-		input := scanner.Text()
-		fmt.Println("You entered:", input)
-	}
-	if err := scanner.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "err")
-	}
-
+	shell.RunShell()
 }
