@@ -5,8 +5,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
+func cmdExit(args []string) {
+	println("Exiting shell")
+	os.Exit(0)
+}
 func cmdAbout(args []string) {
 	fmt.Println("goshell")
 	fmt.Println("A simple POSIX-compliant shell implementation in Go.")
@@ -20,13 +25,45 @@ func cmdEcho(args []string) {
 	}
 }
 
+func cmdTouch(args []string) {
+	if len(args) == 0 {
+		fmt.Println("touch: missing file operand")
+		return
+	}
+	for _, filename := range args {
+		_, err := os.Stat(filename)
+		if os.IsNotExist(err) {
+			// file doesnot exist create it
+			file, err := os.Create(filename)
+			if err != nil {
+				fmt.Printf("touch: cannot create '%s': %v\n", filename, err)
+				continue
+			}
+			file.Close()
+			fmt.Printf("Created file: %s\n", filename)
+		} else if err == nil {
+			// file exists update its timestamp
+			now := time.Now()
+			err := os.Chtimes(filename, now, now)
+			if err != nil {
+				fmt.Printf("touch: cannot touch '%s': %v\n", filename, err)
+				continue
+			} else {
+				fmt.Printf("touch: error checking '%s': %v\n", filename, err)
+			}
+
+		}
+
+	}
+}
 func cmdPwd(args []string) {}
 
 var validCommands = map[string]func(args []string){
-
 	"echo":  cmdEcho,
 	"pwd":   cmdPwd,
 	"about": cmdAbout,
+	"exit":  cmdExit,
+	"touch": cmdTouch,
 }
 
 func isValidCommand(command string) bool {
