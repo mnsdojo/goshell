@@ -60,7 +60,12 @@ func cmdTouch(args []string) {
 	}
 }
 func cmdPwd(args []string) {
-
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Printf("pwd: %v\n", err)
+		return
+	}
+	fmt.Println(dir)
 }
 
 func cmdClear(args []string) {
@@ -105,12 +110,12 @@ func RunShell() {
 		parts := strings.Fields(input)
 		command := parts[0]
 		args := parts[1:]
-
-		cmdFn, ok := validCommands[command]
-		if !ok {
+		if !isValidCommand(command) {
 			fmt.Printf("%s: command not found\n", command)
 			continue
 		}
+
+		cmdFn := validCommands[command]
 		cmdFn(args)
 	}
 	if err := scanner.Err(); err != nil {

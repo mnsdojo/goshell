@@ -12,8 +12,3 @@ func PrintError(message string, err error) {
 		fmt.Printf("%s%s: %v%s\n", Red, message, err, Reset)
 	}
 }
-
-func IsValidCommand(command string, validCommands map[string]func(args []string)) bool {
-	_, ok := validCommands[command]
-	return ok
-}
