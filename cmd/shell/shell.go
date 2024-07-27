@@ -4,8 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/mnsdojo/goshell/internal/utils"
 )
 
 func cmdExit(args []string) {
@@ -36,7 +39,7 @@ func cmdTouch(args []string) {
 			// file doesnot exist create it
 			file, err := os.Create(filename)
 			if err != nil {
-				fmt.Printf("touch: cannot create '%s': %v\n", filename, err)
+				utils.PrintError("touch: cannot create ", err)
 				continue
 			}
 			file.Close()
@@ -56,7 +59,18 @@ func cmdTouch(args []string) {
 
 	}
 }
-func cmdPwd(args []string) {}
+func cmdPwd(args []string) {
+
+}
+
+func cmdClear(args []string) {
+	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		fmt.Printf("clear: %v\n", err)
+	}
+}
 
 var validCommands = map[string]func(args []string){
 	"echo":  cmdEcho,
@@ -64,6 +78,7 @@ var validCommands = map[string]func(args []string){
 	"about": cmdAbout,
 	"exit":  cmdExit,
 	"touch": cmdTouch,
+	"clear": cmdClear,
 }
 
 func isValidCommand(command string) bool {
