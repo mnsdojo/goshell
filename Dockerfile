@@ -8,7 +8,7 @@ WORKDIR /go/src/app
 COPY . .
 
 # Build the Go executable
-RUN go build -o goshell ./cmd/goshell/main.go
+RUN go build -o goshell main.go
 
 
 
