@@ -11,6 +11,28 @@ import (
 	"github.com/mnsdojo/goshell/internal/utils"
 )
 
+func cmdLs(args []string) {
+	var dir string
+	if len(args) == 0 {
+		dir = "."
+	} else {
+		dir = args[0]
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		fmt.Printf("ls: cannot access '%s' : %v\n", dir, err)
+		return
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			fmt.Printf("%s/\n", entry.Name())
+		} else {
+			fmt.Println(entry.Name())
+		}
+	}
+}
+
 func cmdExit(args []string) {
 	println("Exiting shell")
 	os.Exit(0)
@@ -25,6 +47,32 @@ func cmdEcho(args []string) {
 		println()
 	} else {
 		fmt.Println(strings.Join(args, ""))
+	}
+}
+
+func cmdMkdir(args []string) {
+	if len(args) == 0 {
+		fmt.Println("mkdir: missing file operand")
+		return
+	}
+	for _, dir := range args {
+		_, err := os.Stat(dir)
+		if err == nil {
+			fmt.Printf("mkdir : cannot create directory %s: File exists\n", dir)
+			continue
+		}
+		if os.IsNotExist(err) {
+			err := os.Mkdir(dir, 0755)
+			// o755 - Permission (rwx)
+			if err != nil {
+				fmt.Printf("mkdir: cannot create directory '%s' : %v\n", dir, err)
+			} else {
+				fmt.Printf("Created directory successfully: %s\n", dir)
+			}
+		} else {
+			fmt.Printf("mkdir: cannot access '%s': %v\n", dir, err)
+		}
+
 	}
 }
 
@@ -83,6 +131,8 @@ var validCommands = map[string]func(args []string){
 	"about": cmdAbout,
 	"exit":  cmdExit,
 	"touch": cmdTouch,
+	"mkdir": cmdMkdir,
+	"ls":    cmdLs,
 	"clear": cmdClear,
 }
 
