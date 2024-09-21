@@ -11,6 +11,14 @@ import (
 	"github.com/mnsdojo/goshell/internal/utils"
 )
 
+const (
+	Reset  = "\033[0m"
+	Red    = "\033[31m"
+	Green  = "\033[32m"
+	Yellow = "\033[33m"
+	Cyan   = "\033[36m"
+)
+
 func cmdLs(args []string) {
 	var dir string
 	if len(args) == 0 {
@@ -20,13 +28,13 @@ func cmdLs(args []string) {
 	}
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		fmt.Printf("ls: cannot access '%s' : %v\n", dir, err)
+		fmt.Printf(Red+"ls: cannot access '%s': %v\n"+Reset, dir, err)
 		return
 	}
 
 	for _, entry := range entries {
 		if entry.IsDir() {
-			fmt.Printf("%s/\n", entry.Name())
+			fmt.Printf(Green+"%s/\n"+Reset, entry.Name())
 		} else {
 			fmt.Println(entry.Name())
 		}
@@ -39,7 +47,7 @@ func cmdExit(args []string) {
 }
 
 func cmdAbout(args []string) {
-	fmt.Println("goshell")
+	fmt.Println(Cyan + "goshell" + Reset)
 	fmt.Println("A simple POSIX-compliant shell implementation in Go.")
 	fmt.Println("GitHub repository: [GoShell](https://github.com/mnsdojo/goshell)")
 }
@@ -54,7 +62,7 @@ func cmdEcho(args []string) {
 
 func cmdMkdir(args []string) {
 	if len(args) == 0 {
-		fmt.Println("mkdir: missing file operand")
+		fmt.Println(Red + "mkdir: missing file operand" + Reset)
 		return
 	}
 	parents := false
@@ -63,10 +71,10 @@ func cmdMkdir(args []string) {
 			parents = true
 		} else {
 			if _, err := os.Stat(args[i]); err != nil {
-				fmt.Printf("Directorry %s already exists \n", args[i])
+				fmt.Printf(Red+"mkdir: directory %s already exists\n"+Reset, args[i])
 				continue
 			} else if !os.IsNotExist(err) {
-				fmt.Printf("Error checking directory %s: %v\n", args[i], err)
+				fmt.Printf(Red+"mkdir: error checking directory %s: %v\n"+Reset, args[i], err)
 				continue
 			}
 
@@ -77,9 +85,9 @@ func cmdMkdir(args []string) {
 				err = os.Mkdir(args[i], 0755)
 			}
 			if err != nil {
-				fmt.Printf("Error creating directory %s: %v\n", args[i], err)
+				fmt.Printf(Red+"mkdir: error creating directory %s: %v\n"+Reset, args[i], err)
 			} else {
-				fmt.Printf("Successfully created: %s\n", args[i])
+				fmt.Printf(Green+"Successfully created: %s\n"+Reset, args[i])
 			}
 		}
 	}
@@ -166,9 +174,9 @@ func cmdInfo(args []string) {
 		"clear": "Clears the terminal screen.",
 	}
 	if desc, exists := commandDescriptions[command]; exists {
-		fmt.Printf("%s : %s\n", command, desc)
+		fmt.Printf(Cyan+"%s : %s\n"+Reset, command, desc)
 	} else {
-		fmt.Printf("info : no information available for '%s'  \n", command)
+		fmt.Printf(Red+"info: no information available for '%s'\n"+Reset, command)
 	}
 }
 
@@ -183,7 +191,7 @@ func RunShell() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Print("$ ")
+		fmt.Print(Cyan + "$ " + Reset)
 		if !scanner.Scan() {
 			break
 		}
@@ -197,7 +205,7 @@ func RunShell() {
 		command := parts[0]
 		args := parts[1:]
 		if !isValidCommand(command) {
-			fmt.Printf("%s: command not found\n", command)
+			fmt.Printf(Red+"%s: command not found\n"+Reset, command)
 			continue
 		}
 
@@ -205,6 +213,6 @@ func RunShell() {
 		cmdFn(args)
 	}
 	if err := scanner.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading standard input: %v\n", err)
+		fmt.Fprintf(os.Stderr, Red+"Error reading standard input: %v\n"+Reset, err)
 	}
 }
