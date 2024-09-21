@@ -54,7 +54,7 @@ func cmdAbout(args []string) {
 
 func cmdEcho(args []string) {
 	if len(args) == 0 {
-		println()
+		// println()
 	} else {
 		fmt.Println(strings.Join(args, ""))
 	}
@@ -149,10 +149,48 @@ var validCommands = map[string]func(args []string){
 	"about": cmdAbout,
 	"exit":  cmdExit,
 	"touch": cmdTouch,
+	"rm":    cmdRm,
 	"mkdir": cmdMkdir,
 	"info":  cmdInfo,
 	"ls":    cmdLs,
 	"clear": cmdClear,
+}
+
+func cmdRm(args []string) {
+	if len(args) == 0 {
+		fmt.Println("Usage: rm [-r] [-f]")
+		return
+	}
+
+	force := false
+	recursive := false
+
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "-f":
+			force = true
+		case "-r":
+			recursive = true
+		default:
+			if recursive {
+				if err := os.RemoveAll(args[i]); err != nil {
+					if !force {
+						fmt.Printf("Error removing %s : %v\n", args[i], err)
+					} else {
+						fmt.Printf("Removed : %s\n", args[i])
+					}
+				}
+			} else {
+				if err := os.Remove(args[i]); err != nil {
+					if !force {
+						fmt.Printf("Error removing %s: %v\n", args[i], err)
+					} else {
+						fmt.Printf("Successfully removed %s: %v\n", args[i], err)
+					}
+				}
+			}
+		}
+	}
 }
 
 func cmdInfo(args []string) {
