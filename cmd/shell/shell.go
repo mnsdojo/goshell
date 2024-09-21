@@ -37,11 +37,13 @@ func cmdExit(args []string) {
 	println("Exiting shell")
 	os.Exit(0)
 }
+
 func cmdAbout(args []string) {
 	fmt.Println("goshell")
 	fmt.Println("A simple POSIX-compliant shell implementation in Go.")
 	fmt.Println("GitHub repository: [GoShell](https://github.com/mnsdojo/goshell)")
 }
+
 func cmdEcho(args []string) {
 	if len(args) == 0 {
 		println()
@@ -55,24 +57,31 @@ func cmdMkdir(args []string) {
 		fmt.Println("mkdir: missing file operand")
 		return
 	}
-	for _, dir := range args {
-		_, err := os.Stat(dir)
-		if err == nil {
-			fmt.Printf("mkdir : cannot create directory %s: File exists\n", dir)
-			continue
-		}
-		if os.IsNotExist(err) {
-			err := os.Mkdir(dir, 0755)
-			// o755 - Permission (rwx)
-			if err != nil {
-				fmt.Printf("mkdir: cannot create directory '%s' : %v\n", dir, err)
-			} else {
-				fmt.Printf("Created directory successfully: %s\n", dir)
-			}
+	parents := false
+	for i := 0; i < len(args); i++ {
+		if args[i] == "-p" {
+			parents = true
 		} else {
-			fmt.Printf("mkdir: cannot access '%s': %v\n", dir, err)
-		}
+			if _, err := os.Stat(args[i]); err != nil {
+				fmt.Printf("Directorry %s already exists \n", args[i])
+				continue
+			} else if !os.IsNotExist(err) {
+				fmt.Printf("Error checking directory %s: %v\n", args[i], err)
+				continue
+			}
 
+			var err error
+			if parents {
+				err = os.MkdirAll(args[i], 0755)
+			} else {
+				err = os.Mkdir(args[i], 0755)
+			}
+			if err != nil {
+				fmt.Printf("Error creating directory %s: %v\n", args[i], err)
+			} else {
+				fmt.Printf("Successfully created: %s\n", args[i])
+			}
+		}
 	}
 }
 
@@ -107,6 +116,7 @@ func cmdTouch(args []string) {
 
 	}
 }
+
 func cmdPwd(args []string) {
 	dir, err := os.Getwd()
 	if err != nil {
