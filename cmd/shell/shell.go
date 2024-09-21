@@ -142,8 +142,34 @@ var validCommands = map[string]func(args []string){
 	"exit":  cmdExit,
 	"touch": cmdTouch,
 	"mkdir": cmdMkdir,
+	"info":  cmdInfo,
 	"ls":    cmdLs,
 	"clear": cmdClear,
+}
+
+func cmdInfo(args []string) {
+	if len(args) == 0 {
+		fmt.Println("Usage: info <command>")
+		fmt.Println("Available commands:")
+		return
+	}
+	command := args[0]
+
+	commandDescriptions := map[string]string{
+		"echo":  "Prints the provided arguments to the standard output.",
+		"pwd":   "Prints the current working directory.",
+		"about": "Displays information about this shell.",
+		"exit":  "Exits the shell.",
+		"touch": "Creates a new file or updates the timestamp of an existing file.",
+		"mkdir": "Creates a new directory. Use -p to create parent directories as needed.",
+		"ls":    "Lists files and directories in the specified directory.",
+		"clear": "Clears the terminal screen.",
+	}
+	if desc, exists := commandDescriptions[command]; exists {
+		fmt.Printf("%s : %s\n", command, desc)
+	} else {
+		fmt.Printf("info : no information available for '%s'  \n", command)
+	}
 }
 
 func isValidCommand(command string) bool {
